@@ -1,14 +1,13 @@
 {
   "name": "smartpick",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vercel dev", 
+    "build": "vercel build",  
+    "start": "node api/search.js"  
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
+    "@vercel/node": "^5.3.12",
     "axios": "^1.10.0",
     "cheerio": "^1.1.0",
     "cors": "^2.8.5",
@@ -20,5 +19,6 @@
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "selenium-webdriver": "^4.33.0",
     "serverless-http": "^3.2.0"
-  }
+  },
+  "license": "ISC"
 }
