@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",          // Production start script
+    "dev": "nodemon server.js",         // Development script using nodemon (optional)
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -19,6 +21,7 @@
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "selenium-webdriver": "^4.33.0",
-    "serverless-http": "^3.2.0"
+    "serverless-http": "^3.2.0",
+    "nodemon": "^2.0.15"                
   }
 }
