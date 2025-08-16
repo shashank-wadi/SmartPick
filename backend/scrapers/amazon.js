@@ -201,10 +201,7 @@ async function scrapeAmazon(query) {
 
 // Retry logic
 async function searchAmazonWithRetry(query, maxAttempts = 2) {
-  const queries = [
-    query, query.replace(/\+/g, ' '),
-    query.toLowerCase(), query.replace(/\s+/g, '+')
-  ];
+  const queries = [ query, query.replace(/\+/g, ' '), query.toLowerCase(), query.replace(/\s+/g, '+')];
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const results = await scrapeAmazon(queries[attempt % queries.length]);
@@ -214,7 +211,5 @@ async function searchAmazonWithRetry(query, maxAttempts = 2) {
   return [];
 }
 
-module.exports = scrapeAmazon;
-module.exports.scrapeAmazon = scrapeAmazon;
-module.exports.searchAmazonWithRetry = searchAmazonWithRetry;
-module.exports.default = scrapeAmazon;
+module.exports ={scrapeAmazon};
+

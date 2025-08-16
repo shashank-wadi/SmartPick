@@ -15,7 +15,7 @@ const searchProducts = async (req, res) => {
       amazon: { count: 0, success: false },
       flipkart: { count: 0, success: false }
     };
-
+    
     scrapePromises.push(
       scrapeAmazon(searchQuery)
         .then(results => {
