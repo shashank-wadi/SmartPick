@@ -6,7 +6,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",    
-    "https://smart-pick-frontend.vercel.app" 
+    "https://smart-pick-frontend.vercel.app/" 
   ]
 }));
 
