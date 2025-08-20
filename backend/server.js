@@ -6,10 +6,8 @@ const searchRoutes = require("./searchRoute/searchRoute");
 const app = express();
 const allowedOrigins = [
   "http://localhost:5173", 
-  "https://your-vercel-app.vercel.app", 
+  "https://smartpick-two.vercel.app", 
 ];
-
-
 app.use(
   cors({
     origin: function (origin, callback) {
