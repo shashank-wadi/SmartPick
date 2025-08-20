@@ -14,5 +14,9 @@ app.use(cors({
 app.use(express.json());
 app.use("/api/search", searchRoute);
 
+app.get("/", (req, res) => {
+  res.send("✅ SmartPick backend is running!");
+});
+
 // Export for Vercel serverless
 module.exports = app;
