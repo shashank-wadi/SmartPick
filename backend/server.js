@@ -1,24 +1,40 @@
 const express = require("express");
 const cors = require("cors");
 
-const searchRoutes = require("./searchRoute/searchRoute"); // ✅ import your route
+const searchRoutes = require("./searchRoute/searchRoute");
 
 const app = express();
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:5173", 
+  "https://your-vercel-app.vercel.app", 
+];
+
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
-// ✅ Use your real route instead of dummy
+
 app.use("/api/search", searchRoutes);
 
-// Default route
 app.get("/", (req, res) => {
-  res.send("Backend is running 🚀 Use /api/search");
+  res.send("Backend is working");
 });
 
-// ✅ Export for Vercel
 module.exports = app;
 
-// ✅ Local run only
 if (process.env.NODE_ENV !== "production") {
   const PORT = 5000;
   app.listen(PORT, () => {

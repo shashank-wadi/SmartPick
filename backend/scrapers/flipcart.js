@@ -1,12 +1,12 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 
-// Simple sleep function
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Get random user agent
+// random user 
 function getRandomUserAgent() {
   const userAgents = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -17,7 +17,6 @@ function getRandomUserAgent() {
   return userAgents[Math.floor(Math.random() * userAgents.length)];
 }
 
-// Enhanced product extraction function
 function extractProductInfo($, $container) {
   let title = '';
   const titleSelectors = [

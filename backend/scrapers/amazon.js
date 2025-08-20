@@ -1,12 +1,12 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 
-// Sleep helper
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Random User-Agent for requests
+// Random User-Agent 
 function getRandomUserAgent() {
   const userAgents = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -17,7 +17,7 @@ function getRandomUserAgent() {
   return userAgents[Math.floor(Math.random() * userAgents.length)];
 }
 
-// Check product relevance
+
 function isRelevantProduct(title, query) {
   const titleLower = title.toLowerCase();
   const queryLower = query.toLowerCase();
@@ -48,7 +48,6 @@ function isRelevantProduct(title, query) {
   return relevanceScore >= 0.8;
 }
 
-// Extract product info
 function extractProductInfo($, $container) {
   let title = '';
   const titleSelectors = [

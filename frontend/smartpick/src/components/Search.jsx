@@ -6,12 +6,19 @@ const Search = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
   const searchProducts = async () => {
     if (!query.trim()) return;
     setLoading(true);
+    setResults([]); 
+
+    setTimeout(() => {
+      document.querySelector(".results-section")?.scrollIntoView({
+        behavior: "smooth",
+      });
+    }, 100);
 
     try {
       const res = await fetch(
@@ -107,9 +114,10 @@ const Search = () => {
       </section>
 
       {/* Results Section */}
-      {loading && (
-        <section className="loading-section">
-          <div className="container">
+      <section className="results-section">
+        <div className="container">
+          {loading ? (
+            // Show loader inside results section
             <div className="loading-container">
               <div className="loading-spinner">
                 <div className="spinner-ring"></div>
@@ -119,58 +127,55 @@ const Search = () => {
               <h3>Finding the best deals for you...</h3>
               <p>Comparing prices across multiple platforms</p>
             </div>
-          </div>
-        </section>
-      )}
-
-      {!loading && results.length > 0 && (
-        <section className="results-section">
-          <div className="container">
-            <div className="results-header">
-              <h2>Found {results.length} products</h2>
-              <p>Best deals from trusted platforms</p>
-            </div>
-            <div className="results-grid">
-              {results.map((item, index) => (
-                <div className="product-card" key={index}>
-                  <div className="product-image">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      onError={(e) => {
-                        e.target.src =
-                          "https://via.placeholder.com/200x200/f0f0f0/666666?text=No+Image";
-                      }}
-                    />
-                    <div className="platform-badge">
-                      <i
-                        className={`fab fa-${item.platform.toLowerCase()}`}
-                      ></i>
-                      {item.platform}
+          ) : results.length > 0 ? (
+            <>
+              <div className="results-header">
+                <h2>Found {results.length} products</h2>
+                <p>Best deals from trusted platforms</p>
+              </div>
+              <div className="results-grid">
+                {results.map((item, index) => (
+                  <div className="product-card" key={index}>
+                    <div className="product-image">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        onError={(e) => {
+                          e.target.src =
+                            "https://via.placeholder.com/200x200/f0f0f0/666666?text=No+Image";
+                        }}
+                      />
+                      <div className="platform-badge">
+                        <i
+                          className={`fab fa-${item.platform.toLowerCase()}`}
+                        ></i>
+                        {item.platform}
+                      </div>
+                    </div>
+                    <div className="product-info">
+                      <h4 className="product-title">{item.title}</h4>
+                      <div className="product-price">
+                        <span className="currency">₹</span>
+                        <span className="amount">{item.price}</span>
+                      </div>
+                      <a
+                        href={item.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="product-link"
+                      >
+                        <span>View on {item.platform}</span>
+                        <i className="fas fa-external-link-alt"></i>
+                      </a>
                     </div>
                   </div>
-                  <div className="product-info">
-                    <h4 className="product-title">{item.title}</h4>
-                    <div className="product-price">
-                      <span className="currency">₹</span>
-                      <span className="amount">{item.price}</span>
-                    </div>
-                    <a
-                      href={item.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="product-link"
-                    >
-                      <span>View on {item.platform}</span>
-                      <i className="fas fa-external-link-alt"></i>
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+                ))}
+              </div>
+            </>
+          ) : null}
+        </div>
+      </section>
+      
 
       {/* Features Section */}
       <section className="features-section" id="how-it-works">
@@ -259,7 +264,7 @@ const Search = () => {
                     <a href="#how-it-works">How It Works</a>
                   </li>
                   <li>
-                    <a href="mailto:techsandbox.dev@gmail.com">Contact Us</a>
+                    <a href="shashanknwadi@gmail.com">Contact Us</a>
                   </li>
                 </ul>
               </div>
@@ -268,8 +273,7 @@ const Search = () => {
 
           <div className="footer-bottom">
             <p>
-              &copy; 2024 SmartPick. All rights reserved. Educational project
-              only.
+              &copy; 2025 SmartPick. All rights reserved.
             </p>
           </div>
         </div>
