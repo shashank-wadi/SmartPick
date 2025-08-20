@@ -1,15 +1,15 @@
 const express = require("express");
 const cors = require("cors");
+const searchRoutes = require("../searchRoute/searchRoute"); // import your route
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Example route
-app.get("/api/search", (req, res) => {
-  const { q } = req.query;
-  res.json({ message: `You searched for ${q}` });
-});
+// ✅ Use real search route
+app.use("/api/search", searchRoutes);
+
+// Default route
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀 Use /api/search");
 });
