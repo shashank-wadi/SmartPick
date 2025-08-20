@@ -10,6 +10,9 @@ app.get("/api/search", (req, res) => {
   const { q } = req.query;
   res.json({ message: `You searched for ${q}` });
 });
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀 Use /api/search");
+});
 
 // ✅ Export Express app for Vercel
 module.exports = app;
