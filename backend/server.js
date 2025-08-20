@@ -1,24 +1,28 @@
+// backend/server.js
 const express = require("express");
 const cors = require("cors");
 
+// Import routes
+const searchRoute = require("./api/searchRoute"); 
+
 const app = express();
 
+// Middleware
 app.use(cors({
   origin: [
-    "http://localhost:5173",    
-    "https://smart-pick-frontend.vercel.app" 
+    "http://localhost:5173",          // local frontend
+    "https://smart-pick-frontend.vercel.app"  // deployed frontend
   ]
 }));
+app.use(express.json());
 
-app.use(express.json()); 
-const searchRoute = require("./searchRoute/searchRoute");
+// Routes
 app.use("/api/search", searchRoute);
 
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Server running locally on port ${PORT}`);
-  });
-}
+// Root route (for testing deployment)
+app.get("/", (req, res) => {
+  res.send("✅ SmartPick backend is running!");
+});
 
+// Export for Vercel
 module.exports = app;
