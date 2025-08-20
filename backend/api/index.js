@@ -25,5 +25,6 @@ app.get("/", (req, res) => {
 // ❌ Wrong for Vercel: module.exports = app;
 // ✅ Correct: Export handler function
 module.exports = (req, res) => {
-  app(req, res);
+  res.send("✅ SmartPick backend is running on Vercel!");
 };
+
