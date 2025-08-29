@@ -321,3 +321,4 @@ async function searchFlipkartWithRetry(query, maxAttempts = 2) {
 }
 
 module.exports = { scrapeFlipkart, searchFlipkartWithRetry };
+
