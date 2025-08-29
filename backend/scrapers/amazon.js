@@ -100,7 +100,7 @@ function extractProductInfo($, $container) {
 async function scrapeAmazon(query) {
   try {
     await sleep(1000 + Math.random() * 2000);
-
+    
     const searchUrl = `https://www.amazon.in/s?k=${encodeURIComponent(query)}&ref=sr_pg_1`;
     const headers = {
       "User-Agent": getRandomUserAgent(),
