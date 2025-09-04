@@ -1,7 +1,6 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 
-
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -32,48 +31,152 @@ function extractProductInfo($, $container) {
   }
 
   if (!title) {
-    const allLinks = $container.find('a');
-    allLinks.each((i, link) => {
+    $container.find('a').each((i, link) => {
       const linkText = $(link).text().trim();
       const linkTitle = $(link).attr('title');
-      if (linkTitle && linkTitle.length > 10) {
-        title = linkTitle;
-        return false;
-      } else if (linkText && linkText.length > 10 && linkText.length < 200) {
-        title = linkText;
-        return false;
-      }
+      if (linkTitle && linkTitle.length > 10) { title = linkTitle; return false; }
+      if (linkText && linkText.length > 10 && linkText.length < 200) { title = linkText; return false; }
     });
   }
-
   let price = null;
+
   const priceSelectors = [
-    '._30jeq3', '._1_WHN1', '._3tbHP2', '._25b18c',
-    '._30jeq3._1_WHN1', '._3I9_wc._27UcVY', '._1_WHN1._30jeq3'
+    '._30jeq3._1_WHN1', 
+    '._30jeq3', 
+    '._1_WHN1', 
+    '._25b18c ._30jeq3', 
+    '._25b18c span', 
+    '.Nx9bqj._30jeq3', 
+    '._4b5DiR',
+    '._1vC4OE._30jeq3',
+    '[data-testid="price-current"]', 
   ];
 
   for (const selector of priceSelectors) {
-    const priceText = $container.find(selector).text().trim();
-    if (priceText.includes('₹')) {
-      const match = priceText.match(/₹([\d,]+)/);
-      if (match) {
-        price = parseInt(match[1].replace(/,/g, ''));
-        break;
-      }
-    }
-  }
-
-  if (!price) {
-    const priceMatches = $container.text().match(/₹([\d,]+)/g);
-    if (priceMatches) {
-      for (const match of priceMatches) {
-        const p = parseInt(match.replace(/₹|,/g, ''));
-        if (p > 500 && p < 1000000) {
-          price = p;
+    const priceElement = $container.find(selector).first();
+    if (priceElement.length) {
+      const priceText = priceElement.text().trim();
+      const priceMatch = priceText.match(/^₹([\d,]+)$/);
+      if (priceMatch) {
+        const extractedPrice = parseInt(priceMatch[1].replace(/,/g, ''), 10);
+        if (extractedPrice >= 50 && extractedPrice <= 500000) {
+          price = extractedPrice;
           break;
         }
       }
     }
+  }
+  if (!price) {
+    const cleanPriceElements = $container.find('span, div').filter(function() {
+      const text = $(this).text().trim();
+      return /^₹[\d,]+$/.test(text);
+    });
+
+    const validPrices = [];
+    cleanPriceElements.each((i, el) => {
+      const text = $(el).text().trim();
+      const cleanPrice = parseInt(text.replace(/₹|,/g, ''), 10);
+      
+      if (cleanPrice >= 50 && cleanPrice <= 500000 && 
+          !isLikelyFalsePositive(cleanPrice)) {
+        validPrices.push(cleanPrice);
+      }
+    });
+
+    if (validPrices.length > 0) {
+      validPrices.sort((a, b) => a - b);
+      price = findMostReasonablePrice(validPrices, title);
+    }
+  }
+  if (!price) {
+    const specialPriceElement = $container.find('*:contains("Special price")').next();
+    if (specialPriceElement.length) {
+      const priceText = specialPriceElement.text().trim();
+      const priceMatch = priceText.match(/₹([\d,]+)/);
+      if (priceMatch) {
+        const extractedPrice = parseInt(priceMatch[1].replace(/,/g, ''), 10);
+        if (extractedPrice >= 50 && extractedPrice <= 500000) {
+          price = extractedPrice;
+        }
+      }
+    }
+    if (!price) {
+      const discountElements = $container.find('*:contains("% off"), *:contains("off")');
+      discountElements.each((i, el) => {
+        if (price) return false;
+        const $parent = $(el).parent();
+        const priceElement = $parent.find('span, div').filter(function() {
+          return /^₹[\d,]+$/.test($(this).text().trim());
+        }).first();
+        
+        if (priceElement.length) {
+          const extractedPrice = parseInt(priceElement.text().replace(/₹|,/g, ''), 10);
+          if (extractedPrice >= 50 && extractedPrice <= 500000) {
+            price = extractedPrice;
+            return false;
+          }
+        }
+      });
+    }
+  }
+  if (!price) {
+    const containerText = $container.text();
+    const allPriceMatches = containerText.match(/₹([\d,]+)/g);
+    
+    if (allPriceMatches) {
+      const validPrices = allPriceMatches
+        .map(match => parseInt(match.replace(/₹|,/g, ''), 10))
+        .filter(p => {
+          return p >= 50 && p <= 500000 && !isLikelyFalsePositive(p);
+        });
+
+      if (validPrices.length > 0) {
+        const sorted = validPrices.sort((a, b) => a - b);
+        const minReasonable = sorted[0];
+        const filtered = sorted.filter(p => p <= minReasonable * 10);
+        
+        if (filtered.length > 0) {
+          price = findMostReasonablePrice(filtered, title);
+        }
+      }
+    }
+  }
+  function isLikelyFalsePositive(price) {
+    const falsePositives = [
+      190076, 
+      ...Array.from({length: 100}, (_, i) => i + 1), 
+      999, 1000, 1111, 2222, 3333, 4444, 5555, 6666, 7777, 8888, 9999,
+      10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95
+    ];
+    if (falsePositives.includes(price)) return true;
+    if (price > 100000 && price.toString().length >= 6) return true;
+    if (price % 10000 === 0 && price > 50000) return true;
+    
+    return false;
+  }
+  function findMostReasonablePrice(prices, title) {
+    if (prices.length === 1) return prices[0];
+    
+    const sorted = prices.sort((a, b) => a - b);
+    const titleLower = title.toLowerCase();
+    
+  
+    if (titleLower.includes('iphone') || titleLower.includes('macbook') || 
+        titleLower.includes('laptop') || titleLower.includes('tv')) {
+      return sorted.find(p => p >= 5000) || sorted[0];
+    }
+    
+     if (titleLower.includes('keyboard') || titleLower.includes('mouse') || 
+        titleLower.includes('cable') || titleLower.includes('case') ||
+        titleLower.includes('charger') || titleLower.includes('adapter')) {
+      return sorted.find(p => p <= 5000) || sorted[0];
+    }
+    
+    return sorted[0];
+  }
+
+   if (price && (price < 10 || price > 1000000 || isLikelyFalsePositive(price))) {
+    price = null;
   }
 
   let link = '';
@@ -90,12 +193,11 @@ function extractProductInfo($, $container) {
   if (link && !link.startsWith('http')) link = 'https://www.flipkart.com' + link;
 
   let image = $container.find('img').first().attr('src') || 
-             $container.find('img').first().attr('data-src') || '';
+              $container.find('img').first().attr('data-src') || '';
 
   return { title, price, link, image };
 }
 
-// Main scraper function
 async function scrapeFlipkart(query) {
   try {
     await sleep(1000 + Math.random() * 2000);
@@ -191,6 +293,7 @@ async function scrapeFlipkart(query) {
     return uniqueResults.slice(0, 20);
 
   } catch (err) {
+    console.error("Scraping error:", err.message);
     return [];
   }
 }
@@ -206,4 +309,4 @@ async function searchFlipkartWithRetry(query, maxAttempts = 2) {
   return [];
 }
 
-module.exports= {scrapeFlipkart};
+module.exports = { scrapeFlipkart, searchFlipkartWithRetry };
